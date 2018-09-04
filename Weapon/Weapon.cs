@@ -1,0 +1,67 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Astral {
+    public abstract class Weapon : ActionController {
+
+        public abstract void WeaponHit();
+        public abstract void AdjustSize();
+
+        public WeaponTypes bulletType;
+
+        [SerializeField]
+        protected float bulletSizeAndDamage;
+
+        public float BulletDamage {
+            get{ return bulletSizeAndDamage; }
+        }
+
+        public float BulletSize {
+            get { return bulletSizeAndDamage; }
+        }
+
+        public void ChangeBulletSizeAndDamage(float newValue) {
+            bulletSizeAndDamage = newValue;
+            AdjustSize();
+        }
+
+        protected Color startColor;
+        public Color StartColor {
+            get { return startColor; }
+        }               
+
+        [SerializeField]
+        float speed;
+        public float Speed {
+            get { return speed; }
+            set { speed = value; }
+        }
+
+        [SerializeField]
+        protected WeaponBehaviour weaponBehaviour;
+
+        protected Rigidbody2D rigidbody;
+        public Rigidbody2D Rigidbody {
+            get { return rigidbody; }
+        }
+
+        private PlayerCollisionThreats playerCollisionThreat = PlayerCollisionThreats.bullet;
+
+        private void Awake() {
+            rigidbody = GetComponent<Rigidbody2D>();
+        }
+
+        protected void OnTriggerEnter2D(Collider2D collision) {
+            if (GameManager.self.search.DidICollideWithThePlayer(collision)) {
+                weaponBehaviour.WeaponHit(this, collision);
+            }
+        }
+
+        public void UpdateStatsBulk(CannonAttributes cannonAttributes, Transform cannonTransform) {
+            Speed = cannonAttributes.BulletSpeed();
+            ChangeBulletSizeAndDamage(cannonAttributes.BulletSizeAndDamage());
+            transform.position = cannonTransform.position;
+        }
+    }
+}
